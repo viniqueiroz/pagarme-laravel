@@ -131,12 +131,121 @@ $customer = Pagarme::customer()->create([
 ]);
 ```
 
-### 💳 Criando Cobranças
+### 💳 Gerenciando Cartões
+
+#### Criando um Cartão
+
+```php
+use Anisotton\Pagarme\DataTransferObjects\CardDto;
+
+// Cartão de crédito usando DTO
+$cardDto = CardDto::creditCard(
+    number: '4000000000000010',
+    holderName: 'João Silva',
+    expMonth: 12,
+    expYear: 2025,
+    cvv: '123',
+    holderDocument: '12345678901',
+    billingAddress: [
+        'line_1' => 'Rua das Flores, 123',
+        'zip_code' => '01310-100',
+        'city' => 'São Paulo',
+        'state' => 'SP',
+        'country' => 'BR'
+    ]
+);
+
+$card = Pagarme::card()->create($customerId, $cardDto->toArray());
+```
+
+#### Cartão Voucher
+
+```php
+$voucherDto = CardDto::voucher(
+    number: '6030000000000000',
+    holderName: 'Maria Santos',
+    holderDocument: '12345678901',
+    expMonth: 6,
+    expYear: 2026,
+    cvv: '456',
+    brand: 'sodexo'
+);
+
+$voucher = Pagarme::card()->create($customerId, $voucherDto->toArray());
+```
+
+#### Criando Token de Cartão
+
+```php
+$tokenData = [
+    'type' => 'card',
+    'card' => [
+        'number' => '4000000000000010',
+        'holder_name' => 'João Silva',
+        'holder_document' => '12345678901',
+        'exp_month' => 12,
+        'exp_year' => 2025,
+        'cvv' => '123',
+        'billing_address' => [
+            'line_1' => 'Rua das Flores, 123',
+            'zip_code' => '01310-100',
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'country' => 'BR'
+        ]
+    ]
+];
+
+$token = Pagarme::card()->createToken($tokenData, $publicKey);
+```
+
+#### Usando Token para Criar Cartão
+
+```php
+$cardFromTokenDto = CardDto::fromToken(
+    token: $token['id'],
+    billingAddress: [
+        'line_1' => 'Av. Paulista, 1000',
+        'zip_code' => '01310-100',
+        'city' => 'São Paulo',
+        'state' => 'SP',
+        'country' => 'BR'
+    ]
+);
+
+$card = Pagarme::card()->create($customerId, $cardFromTokenDto->toArray());
+```
+
+#### Outras Operações com Cartões
+
+```php
+// Obter cartão
+$card = Pagarme::card()->find($customerId, $cardId);
+
+// Listar cartões do cliente
+$cards = Pagarme::card()->all($customerId);
+
+// Atualizar cartão
+$updatedCard = Pagarme::card()->update($customerId, $cardId, [
+    'holder_name' => 'João da Silva'
+]);
+
+// Renovar cartão
+$renewedCard = Pagarme::card()->renew($customerId, $cardId);
+
+// Remover cartão
+Pagarme::card()->remove($customerId, $cardId);
+
+// Obter informações do BIN
+$binInfo = Pagarme::card()->getBinInfo('400000');
+```
+
+### 💰 Criando Cobranças
 
 #### Cobrança PIX
 
 ```php
-use Keepcloud\Pagarme\DataTransferObjects\ChargeDto;
+use Anisotton\Pagarme\DataTransferObjects\ChargeDto;
 
 $chargeDto = ChargeDto::pix(
     amount: 1000, // R$ 10,00 em centavos
@@ -240,7 +349,7 @@ $plan = Pagarme::plan()->create([
 ### 🔔 Processando Webhooks
 
 ```php
-use Keepcloud\Pagarme\Facades\Pagarme;
+use Anisotton\Pagarme\Facades\Pagarme;
 
 Route::post('/webhook/pagarme', function (Request $request) {
     try {
@@ -271,7 +380,7 @@ Route::post('/webhook/pagarme', function (Request $request) {
 ### 🛠️ Usando Helpers
 
 ```php
-use Keepcloud\Pagarme\Support\PaymentHelper;
+use Anisotton\Pagarme\Support\PaymentHelper;
 
 // Converter centavos para reais
 $amount = PaymentHelper::centsToCurrency(1000); // 10.00
@@ -316,6 +425,16 @@ $installments = PaymentHelper::generateInstallments(10000, 12, 2.5);
 - `allAddresses($id)` - Listar endereços
 - `updateAddress($id, $addressId, $data)` - Atualizar endereço
 - `deleteAddress($id, $addressId)` - Remover endereço
+
+### Card (Cartões)
+- `create($customerId, $data)` - Criar cartão
+- `find($customerId, $cardId)` - Obter cartão
+- `all($customerId, $queryParams)` - Listar cartões
+- `update($customerId, $cardId, $data)` - Editar cartão
+- `remove($customerId, $cardId)` - Excluir cartão
+- `renew($customerId, $cardId)` - Renovar cartão
+- `createToken($data, $appId)` - Criar token do cartão
+- `getBinInfo($bin)` - Obter informações do BIN
 
 ### Charge (Cobranças)
 - `create($data)` - Criar cobrança
@@ -420,6 +539,7 @@ Este pacote é open-source e licenciado sob a [Licença MIT](LICENSE.md).
 Para documentação mais detalhada sobre cada endpoint, consulte:
 
 - [Customer (Clientes)](docs/CUSTOMER.md)
+- [Card (Cartões)](docs/CARD.md)
 - [Charge (Cobranças)](docs/CHARGE.md)
 - [Order (Pedidos)](docs/ORDER.md)
 - [Plan (Planos)](docs/PLAN.md)

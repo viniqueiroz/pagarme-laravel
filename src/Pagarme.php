@@ -14,7 +14,8 @@ class Pagarme
         protected Endpoints\Payload $payload,
         protected Endpoints\Subscription $subscription,
         protected Endpoints\Plan $plan,
-        protected Endpoints\Webhook $webhook
+        protected Endpoints\Webhook $webhook,
+        protected Endpoints\Card $card
     ) {}
 
     public function customer(): Endpoints\Customer
@@ -55,6 +56,11 @@ class Pagarme
     public function webhook(): Endpoints\Webhook
     {
         return $this->webhook;
+    }
+
+    public function card(): Endpoints\Card
+    {
+        return $this->card;
     }
 
     /**

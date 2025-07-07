@@ -68,6 +68,7 @@ class PagarmeServiceProvider extends ServiceProvider
             Endpoints\Subscription::class,
             Endpoints\Plan::class,
             Endpoints\Webhook::class,
+            Endpoints\Card::class,
         ];
 
         foreach ($endpoints as $endpoint) {
@@ -99,7 +100,8 @@ class PagarmeServiceProvider extends ServiceProvider
                 $app->make(Payload::class),
                 $app->make(Endpoints\Subscription::class),
                 $app->make(Endpoints\Plan::class),
-                $app->make(Endpoints\Webhook::class)
+                $app->make(Endpoints\Webhook::class),
+                $app->make(Endpoints\Card::class)
             );
         });
     }
