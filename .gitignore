@@ -27,3 +27,4 @@ testbench.yaml
 .vscode
 .env
 .phpunit.result.cache
+.github
