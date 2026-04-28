@@ -241,7 +241,7 @@ abstract class ApiAdapter
     protected function recursivelyHideSensitiveData(array $data, array $sensitiveFields): array
     {
         foreach ($data as $key => $value) {
-            if (in_array(strtolower($key), $sensitiveFields)) {
+            if (in_array((string)strtolower($key), $sensitiveFields)) {
                 $data[$key] = '***HIDDEN***';
             } elseif (is_array($value)) {
                 $data[$key] = $this->recursivelyHideSensitiveData($value, $sensitiveFields);
